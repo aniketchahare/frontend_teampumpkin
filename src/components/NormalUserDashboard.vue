@@ -28,14 +28,22 @@
             v-for="image in imagesList"
             :key="image.id"
           >
-            <md-card-media>
-              <img :src="getImgUrl(image.imgUrl)" alt="img" />
-            </md-card-media>
+            <!-- <md-card-media> -->
+            <!-- <img
+                :src="
+                  image.urls.length !== 0 ? getImgUrl(image.urls[0].url) : null
+                "
+                alt="img"
+              /> -->
+            <!-- </md-card-media> -->
 
             <md-card-content class="inner-div-main">
+              <div class="count-div">
+                {{ image.urls.length }}
+              </div>
               <div>
                 <span class="inner-div">{{
-                  `Contributer : ${image.uploadedByDetails.name}`
+                  `Contributer : ${image["uploadedByDetails.name"]}`
                 }}</span>
               </div>
               <div>
@@ -68,9 +76,25 @@
         </div>
 
         <div class="dialogue-sub-div">
-          <md-card-media>
-            <img :src="getImgUrl(this.img)" alt="img" />
-          </md-card-media>
+          <div class="grid-container">
+            <div v-for="img in img" :key="img.id">
+              <md-card-media>
+                <img
+                  :src="getImgUrl(img.url)"
+                  alt="img"
+                  class="grid-item"
+                />
+              </md-card-media>
+
+              <md-dialog-actions class="download-btn">
+                <md-button
+                  style="background-color: #d5bc3d"
+                  @click="downloadImg(img.url)"
+                  >Download
+                </md-button>
+              </md-dialog-actions>
+            </div>
+          </div>
 
           <md-card-content class="inner-div-main">
             <div>
@@ -88,14 +112,6 @@
             </div>
           </md-card-content>
         </div>
-
-        <md-dialog-actions class="download-btn">
-          <md-button
-            style="background-color: #d5bc3d"
-            @click="downloadImg(img)"
-            >Download
-          </md-button>
-        </md-dialog-actions>
       </md-dialog>
     </md-app-content>
   </md-app>
@@ -114,6 +130,7 @@ export default {
     contributer: "",
     imgName: "",
     totalDownloads: "",
+    imgCount: 0,
   }),
   beforeMount() {
     this.getAllCategories();
@@ -143,6 +160,7 @@ export default {
       new TokenService()
         .checkAuthentication(GetAllImages, categoryId)
         .then((response) => {
+          console.log("result--> ", response.data.result);
           this.imagesList = response.data.result;
           const data = JSON.stringify(response.data.message);
           this.$toasted.show(data).goAway(2500);
@@ -161,8 +179,8 @@ export default {
     },
     openDialogue(val) {
       this.showDialog = true;
-      this.img = val.imgUrl;
-      this.contributer = val.uploadedByDetails.name;
+      this.img = val.urls;
+      this.contributer = val["uploadedByDetails.name"];
       this.imgName = val.name;
       this.totalDownloads = val.downloadsCount;
     },
@@ -257,5 +275,23 @@ export default {
 .close-div {
   width: 6%;
   cursor: pointer;
+}
+.count-div {
+  font-size: 8em;
+  height: 1em;
+  display: inline-flex;
+  align-items: center;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  padding: 10px;
+}
+.grid-item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
 }
 </style>

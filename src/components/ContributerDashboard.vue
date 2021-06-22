@@ -62,6 +62,7 @@
                       class="upload up input-field"
                       name="img"
                       id="img"
+                      multiple="multiple"
                       @change="uploadImage($event)"
                     /> </span
                   ><!-- btn-orange -->
@@ -70,7 +71,11 @@
             </div>
             <div class="text-div">
               <label class="label">Category</label>
-              <select name="Category" class="input-field" v-model="form.category">
+              <select
+                name="Category"
+                class="input-field"
+                v-model="form.category"
+              >
                 <option
                   v-for="category in categoryList"
                   :key="category.id"
@@ -105,9 +110,9 @@
             </div>
             <!-- <div class="table-row-main"> -->
             <div class="table-row" v-for="item in reportList" :key="item.id">
-              <div class="table-row-data">{{item.name}}</div>
-              <div class="table-row-data">{{item.name}}</div>
-              <div class="table-row-data">{{item.downloadsCount}}</div>
+              <div class="table-row-data">{{ item.name }}</div>
+              <div class="table-row-data">{{ item.name }}</div>
+              <div class="table-row-data">{{ item.downloadsCount }}</div>
             </div>
           </div>
         </md-card>
@@ -124,9 +129,9 @@ export default {
   data: () => ({
     showDialog: false,
     selected: "first",
-    form: { imgName: "", imgFile: "", category: "" },
+    form: { imgName: "", imgFile: [], category: "" },
     categoryList: [],
-    reportList: []
+    reportList: [],
   }),
   beforeMount() {
     this.getAllCategories();
@@ -154,18 +159,23 @@ export default {
       window.setTimeout(() => {}, 2500);
     },
     uploadImage(event) {
-      this.form.imgFile = event.target.files[0]
+      this.form.imgFile = event.target.files;
     },
     clearForm() {
       this.form.imgName = "";
       this.form.category = "";
-      this.form.imgFile = "";
+      this.form.imgFile = [];
     },
     create() {
+      console.log(this.form.imgFile);
       let imgData = new FormData();
       imgData.append("name", this.form.imgName);
       imgData.append("category", this.form.category);
-      imgData.append("file", this.form.imgFile);
+      for (let index = 0; index < this.form.imgFile.length; index++) {
+        imgData.append("file",this.form.imgFile[index]);
+        
+      }
+      // imgData.append("file", this.form.imgFile);
       Upload(imgData)
         .then((response) => {
           const data = JSON.stringify(response.data.message);
